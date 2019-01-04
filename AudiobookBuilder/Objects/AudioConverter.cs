@@ -14,11 +14,9 @@ namespace AudiobookBuilder.Objects
     public class AudioConverter
     {
         public AudioConverter()
-        {
-            Directory.CreateDirectory(_convertTempPath);
+        {            
         }
 
-        private readonly string _convertTempPath = $"{Path.GetTempPath()}\\AudiobookBuilder";
         private CancellationTokenSource _tokenSource;
 
         public void Abort()
@@ -47,7 +45,7 @@ namespace AudiobookBuilder.Objects
                             OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.ConvertToAAC, $"{Properties.Resources.Converting}: {item.FileName}"));
                             using (var filestream = new MediaFoundationReader(item.Path))
                             {
-                                item.WorkingPath = $"{_convertTempPath}\\{item.FileName}.aac";
+                                item.WorkingPath = Path.GetTempFileName();
                                 MediaFoundationEncoder.EncodeToAac(filestream, item.WorkingPath);
                             }
                         }
@@ -61,6 +59,13 @@ namespace AudiobookBuilder.Objects
                 catch (Exception e)
                 {
                     OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.Error, e.Message));
+                }
+                finally
+                {
+                    foreach(var item in fileItems)
+                    {
+                        File.Delete(item.WorkingPath);
+                    }
                 }
             }, _tokenSource.Token);
         }        
