@@ -12,11 +12,12 @@ namespace AudiobookBuilder
     {
         public AudioBookBuilderViewModel()
         {
+            OuputFileItem = new OuputFileItem();
             _audioConverter = new AudioConverter();
             _audioConverter.OnConvert += _audioConverter_OnConvert;
 
-            FileItems = new ObservableCollection<FileItem>();            
-            ConvertCommand = new RelayCommand<ObservableCollection<FileItem>>(o =>_audioConverter.Convert(o), o => !IsBusy && o?.Any() == true);
+            FileItems = new ObservableCollection<InputFileItem>();            
+            ConvertCommand = new RelayCommand<ObservableCollection<InputFileItem>>(o =>_audioConverter.Convert(o), o => !IsBusy && o?.Any() == true);
             AbortCommand = new RelayCommand<object>(o => _audioConverter.Abort(), o=>IsBusy);
         }
 
@@ -57,7 +58,7 @@ namespace AudiobookBuilder
             set { _busyMessage = value; OnPropertyChanged(); }
         }
         
-        public RelayCommand<ObservableCollection<FileItem>> ConvertCommand { get; private set; }
+        public RelayCommand<ObservableCollection<InputFileItem>> ConvertCommand { get; private set; }
         public RelayCommand<object> AbortCommand { get; private set; }
 
         private bool _isBusy;
@@ -67,21 +68,28 @@ namespace AudiobookBuilder
             set { _isBusy = value;OnPropertyChanged(); }
         }
 
-        private ObservableCollection<FileItem> _fileItems;
-        public ObservableCollection<FileItem> FileItems
+        private ObservableCollection<InputFileItem> _fileItems;
+        public ObservableCollection<InputFileItem> FileItems
         {
             get { return _fileItems; }
             set { _fileItems = value;OnPropertyChanged(); }
         }
 
-        private FileItem _selectedFileItem;
-        public FileItem SelectedFileItem
+        private InputFileItem _selectedFileItem;
+        public InputFileItem SelectedFileItem
         {
             get { return _selectedFileItem; }
             set { _selectedFileItem = value;OnPropertyChanged(); }
         }
 
-        
+        private OuputFileItem _ouputFileItem;
+
+        public OuputFileItem OuputFileItem
+        {
+            get { return _ouputFileItem; }
+            set { _ouputFileItem = value; OnPropertyChanged(); }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

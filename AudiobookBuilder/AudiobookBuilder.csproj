@@ -72,6 +72,8 @@
     <Compile Include="Objects\ConvertEventArgs.cs" />
     <Compile Include="Objects\ConvertEventType.cs" />
     <Compile Include="Objects\FileItem.cs" />
+    <Compile Include="Objects\InputFileItem.cs" />
+    <Compile Include="Objects\OuputFileItem.cs" />
     <Compile Include="Properties\Resources.de-DE.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

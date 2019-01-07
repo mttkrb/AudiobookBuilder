@@ -25,7 +25,7 @@ namespace AudiobookBuilder.Objects
             OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.Aborting, Properties.Resources.Convert_Aborting));
         }
 
-        public void Convert(ICollection<FileItem> fileItems)
+        public void Convert(ICollection<InputFileItem> fileItems)
         {
             _tokenSource = new CancellationTokenSource();
             Task.Run(() =>
@@ -46,9 +46,12 @@ namespace AudiobookBuilder.Objects
                             using (var filestream = new MediaFoundationReader(item.Path))
                             {
                                 item.WorkingPath = Path.GetTempFileName();
-                                MediaFoundationEncoder.EncodeToAac(filestream, item.WorkingPath);
+                                MediaFoundationEncoder.EncodeToAac(filestream, item.WorkingPath);                                
                             }
                         }
+
+
+
                     }
                     OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.EndConvert));
                 }

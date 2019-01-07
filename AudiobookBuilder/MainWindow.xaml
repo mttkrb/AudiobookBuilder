@@ -26,7 +26,7 @@
                   IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
                   ItemsSource="{Binding FileItems}" 
                   SelectedItem="{Binding SelectedFileItem ,Mode=TwoWay}" 
-                  ItemTemplate="{StaticResource MusicItemListItem}"
+                  ItemTemplate="{StaticResource MusicListItem}"
                   AllowDrop="True"
                   DragOver="FileItems_DragOver"
                   Drop="FileItems_Drop"                  
@@ -37,12 +37,22 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-            <ContentControl Grid.Row="0" 
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ContentControl Grid.Row="0" Grid.Column="0"
                             Content="{Binding SelectedFileItem}" 
-                            ContentTemplate="{StaticResource MusicItemDetailItem}"
+                            ContentTemplate="{StaticResource MusicDetailItem}"
                             IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
                             />
-            <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+            <ContentControl Grid.Row="0" Grid.Column="1"
+                            Content="{Binding SelectedFileItem}" 
+                            ContentTemplate="{StaticResource OutputDetailItem}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                            />
+            
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>

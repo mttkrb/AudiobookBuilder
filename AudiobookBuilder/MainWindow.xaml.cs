@@ -30,7 +30,7 @@ namespace AudiobookBuilder
             {                
                 foreach (var file in ((IEnumerable<string>)e.Data.GetData(DataFormats.FileDrop)).OrderBy(o=>o))
                 {
-                    vm.FileItems.Add(new FileItem(file));
+                    vm.FileItems.Add(new InputFileItem(file));
                 }               
             }
         }

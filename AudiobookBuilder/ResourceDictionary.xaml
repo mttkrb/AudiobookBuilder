@@ -7,11 +7,28 @@
     <resx:Resources x:Key="AppRes"/>
 
     <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
-    <DataTemplate DataType="{x:Type dataTypes:FileItem}" x:Key="MusicItemListItem">
+    <DataTemplate DataType="{x:Type dataTypes:InputFileItem}" x:Key="MusicListItem">
         <TextBlock Text="{Binding FileName}"/>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type dataTypes:FileItem}" x:Key="MusicItemDetailItem">
+    <DataTemplate DataType="{x:Type dataTypes:InputFileItem}" x:Key="MusicDetailItem">
+        <GroupBox Header="{Binding FileName}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+            </Grid>
+        </GroupBox>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type dataTypes:OuputFileItem}" x:Key="OutputDetailItem">
         <GroupBox Header="{Binding FileName}">
             <Grid>
                 <Grid.RowDefinitions>

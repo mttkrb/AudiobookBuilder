@@ -6,7 +6,8 @@ namespace AudiobookBuilder.Objects
 {
     public class FileItem : INotifyPropertyChanged
     {
-        public FileItem(string path)
+        public FileItem() { }
+        public FileItem(string path) :this()
         {
             Path = path;
         }
@@ -23,15 +24,6 @@ namespace AudiobookBuilder.Objects
             get { return _path; }
             private set { _path = value; OnPropertyChanged(); }
         }
-
-        private string _workingPath;
-
-        public string WorkingPath
-        {
-            get { return _workingPath; }
-            set { _workingPath = value;OnPropertyChanged(); }
-        }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
