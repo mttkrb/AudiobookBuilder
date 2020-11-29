@@ -1,2 +1,2 @@
 # AudiobookBuilder
-WPF Application to create m4b audiobook files
+console Application to create m4b audiobook files

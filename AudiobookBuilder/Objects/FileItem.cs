@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using ATL;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +11,10 @@ namespace AudiobookBuilder.Objects
         public FileItem(string path) :this()
         {
             Path = path;
+            TrackInfo = new Track(path, true);
         }
+
+        public Track TrackInfo { get; private set; }
 
         public string FileName
         {

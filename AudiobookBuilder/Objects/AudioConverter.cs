@@ -1,5 +1,7 @@
-﻿using NAudio.MediaFoundation;
+﻿using ATL;
+using NAudio.MediaFoundation;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,70 +11,108 @@ using System.Threading.Tasks;
 
 namespace AudiobookBuilder.Objects
 {
-    public delegate void AudioConverterEventHandler(object source, ConvertEventArgs e);
-
     public class AudioConverter
     {
-        public AudioConverter()
-        {            
-        }
-
-        private CancellationTokenSource _tokenSource;
-
-        public void Abort()
+        public static FileInfo Convert(DirectoryInfo folder)
         {
-            _tokenSource.Cancel(true);
-            OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.Aborting, Properties.Resources.Convert_Aborting));
-        }
-
-        public void Convert(ICollection<InputFileItem> fileItems)
-        {
-            _tokenSource = new CancellationTokenSource();
-            Task.Run(() =>
+            var fileItems = folder.GetFiles("*.mp3").Select(s => new FileItem(s.FullName)).ToArray();
+            if(fileItems?.Any()==false)
             {
-                try
+                return null;
+            }
+
+
+            var mp3Merged = Path.GetTempFileName();
+            var aacMerged = mp3Merged + ".m4a";
+
+            try
+            {
+
+
+                using (var str = new FileStream(mp3Merged, FileMode.OpenOrCreate))
                 {
-                    OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.BeginConvert, $"{Properties.Resources.Convert_Start} {fileItems.Count()} {Properties.Resources.files}"));
-                    foreach (var item in fileItems)
+                    foreach (var file in fileItems)
                     {
-                        if(_tokenSource.IsCancellationRequested)
+                        Mp3FileReader reader = new Mp3FileReader(file.Path);
+                        if ((str.Position == 0) && (reader.Id3v2Tag != null))
                         {
-                            _tokenSource.Token.ThrowIfCancellationRequested();
+                            str.Write(reader.Id3v2Tag.RawData, 0, reader.Id3v2Tag.RawData.Length);
                         }
-                        
-                        if (!item.Path.EndsWith("m4a") && !item.Path.EndsWith(".m4b"))
+                        Mp3Frame frame;
+                        while ((frame = reader.ReadNextFrame()) != null)
                         {
-                            OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.ConvertToAAC, $"{Properties.Resources.Converting}: {item.FileName}"));
-                            using (var filestream = new MediaFoundationReader(item.Path))
-                            {
-                                item.WorkingPath = Path.GetTempFileName();
-                                MediaFoundationEncoder.EncodeToAac(filestream, item.WorkingPath);                                
-                            }
+                            str.Write(frame.RawData, 0, frame.RawData.Length);
                         }
-
-
-
-                    }
-                    OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.EndConvert));
-                }
-                catch(OperationCanceledException oe)
-                {
-                    OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.Cancelled,oe.Message));
-                }
-                catch (Exception e)
-                {
-                    OnConvert?.Invoke(this, new ConvertEventArgs(ConvertEventType.Error, e.Message));
-                }
-                finally
-                {
-                    foreach(var item in fileItems)
-                    {
-                        File.Delete(item.WorkingPath);
                     }
                 }
-            }, _tokenSource.Token);
-        }        
 
-        public event AudioConverterEventHandler OnConvert;
+                using (var filestream = new MediaFoundationReader(mp3Merged))
+                {
+                    MediaFoundationEncoder.EncodeToAac(filestream, aacMerged);
+                }
+
+
+                var first = fileItems.First().TrackInfo;
+
+                var finallyMerged =  $"{folder.FullName}{first.Artist} - {first.Album}.m4b";
+                
+                foreach(var c in Path.GetInvalidFileNameChars())
+                {
+                    finallyMerged = finallyMerged.Replace(c, '_');
+                }
+
+                File.Move(aacMerged, finallyMerged);
+                Settings.MP4_createNeroChapters = true;
+                Settings.MP4_createQuicktimeChapters = true;
+
+                var aacTrack = new Track(finallyMerged);
+
+
+
+                aacTrack.Album = first.Album;
+                aacTrack.AlbumArtist = first.AlbumArtist;
+                aacTrack.Artist = first.Artist;
+                aacTrack.Date = first.Date;
+                aacTrack.Title = first.Album;
+                foreach (var pToken in first.PictureTokens)
+                {
+                    aacTrack.PictureTokens.Add(pToken);
+                }
+
+                foreach (var picutre in first.EmbeddedPictures)
+                {
+                    aacTrack.EmbeddedPictures.Add(picutre);
+                }
+
+                var timemarker = new TimeSpan();
+
+                foreach (var fileItem in fileItems)
+                {
+                    var chapter = new ChapterInfo
+                    {
+                        Title = fileItem.TrackInfo.Title,
+                        StartTime = (uint)timemarker.TotalMilliseconds,
+                        StartOffset = (uint)timemarker.TotalMilliseconds
+                    };
+                    timemarker += TimeSpan.FromMilliseconds(fileItem.TrackInfo.DurationMs);
+                    chapter.EndTime = (uint)timemarker.TotalMilliseconds;
+                    chapter.EndOffset = (uint)timemarker.TotalMilliseconds;
+                    aacTrack.Chapters.Add(chapter);
+                }
+
+                aacTrack.Save();
+                return new FileInfo(finallyMerged);
+            }
+            finally
+            {
+                File.Delete(mp3Merged);
+            }
+
+
+
+
+        }         
     }
+
+    
 }

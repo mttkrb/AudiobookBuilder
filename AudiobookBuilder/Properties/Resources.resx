@@ -114,23 +114,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Button_Start" xml:space="preserve">
-    <value>Start Building</value>
-    
-  </data>
-  <data name="Button_Abort" xml:space="preserve">
-    <value>Abort building</value>
-  </data>
-  <data name="Converting" xml:space="preserve">
-    <value>Converting</value>
-  </data>
-  <data name="Convert_Start" xml:space="preserve">
-    <value>Start converting</value>
-  </data>
-  <data name="files" xml:space="preserve">
-    <value>files</value>
-  </data>
-  <data name="Convert_Aborting" xml:space="preserve">
-    <value>Aborting</value>
-  </data>
 </root>
